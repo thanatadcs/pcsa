@@ -14,6 +14,15 @@ getKey:
     int 10h
     cmp al, 13
     je .done
+    cmp al, 8		; Check for backspace
+    je .delete
+    jmp getKey
+
+.delete:
+    mov al, 32		; Print space
+    int 10h
+    mov al, 8		; Print backspace
+    int 10h
     jmp getKey
 
 .repeat:
