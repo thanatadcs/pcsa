@@ -8,10 +8,12 @@ start:
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
 
 getKey:
-    mov ah, 0h  ;service 0h Read key press
+    mov ah, 0h  	; service 0h Read key press
     int 16h
-    mov ah, 0Eh ; Print byte in AL
+    mov ah, 0Eh 	; Print byte in AL
     int 10h
+    cmp al, 13
+    je .done
     jmp getKey
 
 .repeat:
@@ -22,6 +24,8 @@ getKey:
     jmp .repeat 
 
 .done:
+    mov al, 10		; Print newline character
+    int 10h
     hlt                 ; Halt execution
 
 data:
