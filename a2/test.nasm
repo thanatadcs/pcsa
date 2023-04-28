@@ -7,12 +7,18 @@ start:
     mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
 
+getKey:
+    mov ah, 0h  ;service 0h Read key press
+    int 16h
+    mov ah, 0Eh ; Print byte in AL
+    int 10h
+    jmp getKey
+
 .repeat:
     lodsb               ; Load byte at address SI into AL, and increment SI
     cmp al, 0
     je .done 
     int 10h             ; Invoke the interupt to print out the character
-    cli                 ; Clear interrupt flag
     jmp .repeat 
 
 .done:
