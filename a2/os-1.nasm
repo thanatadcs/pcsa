@@ -19,7 +19,7 @@ start:
     hlt                 ; Halt execution
 
 data:
-	message db 'Hello', 10, 13, 0
+	message db 'Thanatad', 10, 13, 0
 
 ; Pad to 510 bytes (boot sector size minus 2) with 0s, and finish with the two-byte standard boot signature
 times 510-($-$$) db 0 
