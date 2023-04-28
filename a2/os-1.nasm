@@ -12,7 +12,6 @@ start:
     cmp al, 0
     je .done 
     int 10h             ; Invoke the interupt to print out the character
-    cli                 ; Clear interrupt flag
     jmp .repeat 
 
 .done:
