@@ -8,7 +8,14 @@ start:
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
     mov di, name
 
-getKey:
+.printMessage:
+    lodsb               ; Load byte at address SI into AL, and increment SI
+    cmp al, 0
+    je  .getKey
+    int 10h             ; Invoke the interupt to print out the character
+    jmp .printMessage
+
+.getKey:
     mov ah, 0h  	; service 0h Read key press
     int 16h
     mov ah, 0Eh 	; Print byte in AL
@@ -18,14 +25,14 @@ getKey:
     stosb		; Store byte from AL to DI and increment DI
     cmp al, 8		; Check for backspace
     je .delete
-    jmp getKey
+    jmp .getKey
 
 .delete:
     mov al, 32		; Print space
     int 10h
     mov al, 8		; Print backspace
     int 10h
-    jmp getKey
+    jmp .getKey
 
 .printName:
     mov si, name
@@ -46,7 +53,7 @@ getKey:
     hlt                 ; Halt execution
 
 data:
-	message db 'Hello', 10, 13, 0
+	message db 'What is your name?', 32, 0
 	name db ""
 
 ; Pad to 510 bytes (boot sector size minus 2) with 0s, and finish with the two-byte standard boot signature
