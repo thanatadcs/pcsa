@@ -7,6 +7,7 @@ start:
     mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
     mov di, name
+    mov cx, name	; Keep original address of name
 
 .printMessage:
     lodsb               ; Load byte at address SI into AL, and increment SI
@@ -27,7 +28,14 @@ start:
     stosb		; Store byte from AL to DI and increment DI
     jmp .getKey
 
+.cannotDelete:
+    mov al, 32		; Print space to undo backspace
+    int 10h
+    je .getKey
+
 .delete:
+    cmp di, cx		; Cannot go back beyond the start of name
+    je .cannotDelete
     dec di              ; Go to previous byte
     mov al, 32		; Print space
     int 10h
