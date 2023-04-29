@@ -6,6 +6,7 @@ start:
     mov si, message     ; Point SI register to our message buffer
     mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
+    mov di, name
 
 getKey:
     mov ah, 0h  	; service 0h Read key press
@@ -13,7 +14,8 @@ getKey:
     mov ah, 0Eh 	; Print byte in AL
     int 10h
     cmp al, 13
-    je .done
+    je .printName		
+    stosb		; Store byte from AL to DI and increment DI
     cmp al, 8		; Check for backspace
     je .delete
     jmp getKey
@@ -25,6 +27,12 @@ getKey:
     int 10h
     jmp getKey
 
+.printName:
+    mov si, name
+    mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
+    mov al, 10		; Print newline character
+    int 10h
+
 .repeat:
     lodsb               ; Load byte at address SI into AL, and increment SI
     cmp al, 0
@@ -33,12 +41,13 @@ getKey:
     jmp .repeat 
 
 .done:
-    mov al, 10		; Print newline character
-    int 10h
+    ;mov al, 10		; Print newline character
+    ;int 10h
     hlt                 ; Halt execution
 
 data:
 	message db 'Hello', 10, 13, 0
+	name db ""
 
 ; Pad to 510 bytes (boot sector size minus 2) with 0s, and finish with the two-byte standard boot signature
 times 510-($-$$) db 0 
