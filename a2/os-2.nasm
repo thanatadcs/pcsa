@@ -1,13 +1,14 @@
 bits 16         ; Tell NASM this is 16 bit code
 org 0x7c00      ; Tell NASM to start outputting stuff at offset 0x7c00
-
+; Note: I did not set up stack for this, but this will works fine
 
 start:
     mov si, message     ; Point SI register to our message buffer
     mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
 	                ; [AL = Character, BH = Page Number, BL = Colour (in graphics mode)]
     mov di, name
-    mov cx, name	; Keep original address of name
+    add di, 7		; Add offset to store after "Hello, " in name
+    mov cx, di		; Keep original address of name
 
 .printMessage:
     lodsb               ; Load byte at address SI into AL, and increment SI
@@ -44,6 +45,7 @@ start:
     int 10h
     jmp .getKey
 
+
 .printName:
     mov si, name
     mov ah, 0Eh         ; Specify 'int 10h' 'teletype output' function
@@ -62,7 +64,7 @@ start:
 
 data:
     message db 'What is your name?', 32, 0
-    name db ""
+    name db "Hello, "
 
 ; Pad to 510 bytes (boot sector size minus 2) with 0s, and finish with the two-byte standard boot signature
 times 510-($-$$) db 0 
