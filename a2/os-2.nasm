@@ -20,16 +20,18 @@ start:
     int 16h
     mov ah, 0Eh 	; Print byte in AL
     int 10h
-    cmp al, 13
+    cmp al, 13          ; Enter is pressed, stop get key
     je .printName		
-    stosb		; Store byte from AL to DI and increment DI
     cmp al, 8		; Check for backspace
     je .delete
+    stosb		; Store byte from AL to DI and increment DI
     jmp .getKey
 
 .delete:
+    dec di              ; Go to previous byte
     mov al, 32		; Print space
     int 10h
+    mov byte [di], 0    ; Replace previous byte with 0 
     mov al, 8		; Print backspace
     int 10h
     jmp .getKey
@@ -48,13 +50,11 @@ start:
     jmp .repeat 
 
 .done:
-    ;mov al, 10		; Print newline character
-    ;int 10h
     hlt                 ; Halt execution
 
 data:
-	message db 'What is your name?', 32, 0
-	name db ""
+    message db 'What is your name?', 32, 0
+    name db ""
 
 ; Pad to 510 bytes (boot sector size minus 2) with 0s, and finish with the two-byte standard boot signature
 times 510-($-$$) db 0 
