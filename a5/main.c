@@ -36,5 +36,6 @@ int main(void)
         pthread_join(workers[i], NULL);
     }
     printf("shared_data.count = %d\n", shared_data.count);
+    pthread_mutex_destroy(&lock);
     return 0;
 }
