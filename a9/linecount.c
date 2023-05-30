@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     while ((read_num = read(fd, &buf, BUFSIZE))) {
         count += count_newline(buf, read_num);
     }
-    printf("%d\n", count);
+    printf("%d %s\n", count, argv[1]);
     close(fd);
     return 0;
 }
