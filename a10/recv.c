@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
         int connFd = accept(listenFd, (SA *) &clientAddr, &clientLen);
         if (connFd < 0) {
             fprintf(stderr, "Failed to accept\n");
+            continue;
         }
         
         copy_logic(connFd, outFd);
