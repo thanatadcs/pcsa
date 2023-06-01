@@ -46,7 +46,9 @@ int main(int argc, char* argv[]) {
         socklen_t clientLen = sizeof(struct sockaddr_storage);
 
         int connFd = accept(listenFd, (SA *) &clientAddr, &clientLen);
-
+        if (connFd < 0) {
+            fprintf(stderr, "Failed to accept\n");
+        }
         
         copy_logic(connFd, outFd);
         close(connFd);
