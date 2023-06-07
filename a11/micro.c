@@ -113,6 +113,10 @@ int main(int argc, char* argv[]) {
 
         // ...gonna block until someone connects to our socket
         int connFd = accept(listenFd, (SA *) &clientAddr, &clientLen);
+		if (connFd < 0) {
+			perror(0);
+			continue;
+		}
 
         // print the address of the incoming client
         char hostBuf[BUFSIZE], svcBuf[BUFSIZE];
