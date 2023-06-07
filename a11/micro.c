@@ -16,7 +16,6 @@ void respond_with_file(int connFd, char *path) {
 	char rel_path[BUFSIZE]; // Should be good enough for this
 	strcpy(rel_path, folder);
 	strcat(rel_path, path);
-	printf("%s\n", rel_path);
 
     int fd = open(rel_path, O_RDONLY);
     if (fd < 0) {
@@ -55,14 +54,15 @@ void respond_with_file(int connFd, char *path) {
     // Response and header
     sprintf(buf, "HTTP/1.1 200 OK\r\n"
     "Server: Tiny\r\n"
-    "Content-length: %lu\r\n"
+    "Content-length: %lld\r\n"
     "Connection: close\r\n"
-    "Content-type: %s\r\n\r\n", (unsigned long) statbuf.st_size, mime_type);
+    "Content-type: %s\r\n\r\n", statbuf.st_size, mime_type);
     write_all(connFd, buf, strlen(buf));
 
     // Body
-    while (read(fd, buf, BUFSIZE)) {
-        write_all(connFd, buf, BUFSIZE);
+	int readNum;
+    while ((readNum = read(fd, buf, BUFSIZE))) {
+        write_all(connFd, buf, readNum);
     }
 	
 	close(fd);
@@ -83,7 +83,9 @@ void serve_http(int connFd) {
         if (strcmp(buf, "\r\n") == 0) break;
     }
 
-    if (strcmp(method, "GET") == 0) {
+    if (strcmp(method, "GET") == 0 &&
+			strlen(uri) > 0 &&
+			strcmp(version, "HTTP/1.1") == 0) {
         //respond_with_hello_world(connFd);
         respond_with_file(connFd, uri);
     }
