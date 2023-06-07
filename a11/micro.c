@@ -77,7 +77,10 @@ void serve_http(int connFd) {
     printf("LOG: %s\n", buf);
 
     char method[BUFSIZE], uri[BUFSIZE], version[BUFSIZE];
-    sscanf(buf, "%s %s %s", method, uri, version);
+	if (sscanf(buf, "%s %s %s", method, uri, version) == 0) {
+		fprintf(stderr, "Invalid input format\n");
+		return ;
+	}
 
     while (read_line(connFd, buf, BUFSIZE) > 0) {
         if (strcmp(buf, "\r\n") == 0) break;
