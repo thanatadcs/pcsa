@@ -1,13 +1,13 @@
 CC=gcc
 CFLAGS=-std=gnu17
-TARGETS=tiny
+TARGETS=micro
 
 all: $(TARGETS)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-tiny: tiny.o pcsa_net.o
+micro: micro.o pcsa_net.o
 	$(CC) -o $@ $^
 
 clean:

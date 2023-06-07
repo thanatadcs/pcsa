@@ -10,20 +10,15 @@
 #define BUFSIZE 1024
 typedef struct sockaddr SA;
 
-void respond_with_hello_world(int connFd) {
-    char *msg = "<h1>Hello, World!!</h1>";
-    char buf[BUFSIZE];
-    sprintf(buf, "HTTP/1.1 200 OK\r\n"
-    "Server: Tiny\r\n"
-    "Content-length: %lu\r\n"
-    "Connection: close\r\n"
-    "Content-type: text/html\r\n\r\n", strlen(msg));
-    write_all(connFd, buf, strlen(buf));
-    write_all(connFd, msg, strlen(msg));
-}
+char *folder; // Input folder
 
 void respond_with_file(int connFd, char *path) {
-    int fd = open(path, O_RDONLY);
+	char rel_path[BUFSIZE]; // Should be good enough for this
+	strcpy(rel_path, folder);
+	strcat(rel_path, path);
+	printf("%s\n", rel_path);
+
+    int fd = open(rel_path, O_RDONLY);
     if (fd < 0) {
         perror(0);
         return;
@@ -35,21 +30,42 @@ void respond_with_file(int connFd, char *path) {
     // Get file info
     if (fstat(fd, &statbuf) == -1) {
         perror(0);
+		close(fd);
         return;
     }
+
+	// Check extension
+	char *mime_type;
+	char *dot_ptr = strrchr(path, '.');
+	if (dot_ptr == NULL) {
+		fprintf(stderr, "File extension not found\n");
+		close(fd);
+		return;
+	}
+	if (strcmp(dot_ptr, ".jpg") == 0 || strcmp(dot_ptr, ".jpeg") == 0) {
+		mime_type = "image/jpeg";
+	} else if (strcmp(dot_ptr, ".html") == 0) {
+		mime_type = "text/html";
+	} else {
+		fprintf(stderr, "Incompatible file extension\n");
+		close(fd);
+		return;
+	}
 
     // Response and header
     sprintf(buf, "HTTP/1.1 200 OK\r\n"
     "Server: Tiny\r\n"
     "Content-length: %lu\r\n"
     "Connection: close\r\n"
-    "Content-type: text/html\r\n\r\n", statbuf.st_size);
+    "Content-type: %s\r\n\r\n", (unsigned long) statbuf.st_size, mime_type);
     write_all(connFd, buf, strlen(buf));
 
     // Body
     while (read(fd, buf, BUFSIZE)) {
         write_all(connFd, buf, BUFSIZE);
     }
+	
+	close(fd);
 }
 
 void serve_http(int connFd) {
@@ -67,17 +83,23 @@ void serve_http(int connFd) {
         if (strcmp(buf, "\r\n") == 0) break;
     }
 
-    if (strcmp(method, "GET") == 0 &&
-            strcmp(uri, "/") == 0) {
+    if (strcmp(method, "GET") == 0) {
         //respond_with_hello_world(connFd);
-        respond_with_file(connFd, "./sample-www/index.html");
+        respond_with_file(connFd, uri);
     }
 
 }
 
+
 int main(int argc, char* argv[]) { 
+
+	if (argc <= 2 || argc >= 4) {
+		fprintf(stderr, "./micro <portNum> <rootFolder>\n");
+		return 1;
+	}
     // an fd for listening for incoming connn
     int listenFd = open_listenfd(argv[1]);
+	folder = argv[2];
 
     for (;;) {
         struct sockaddr_storage clientAddr; // to store addr of the client
