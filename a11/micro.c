@@ -101,6 +101,10 @@ int main(int argc, char* argv[]) {
 	}
     // an fd for listening for incoming connn
     int listenFd = open_listenfd(argv[1]);
+	if (listenFd < 0) {
+		fprintf(stderr, "Failed to listened on port %s\n", argv[1]);
+		return 1;
+	}
 	folder = argv[2];
 
     for (;;) {
