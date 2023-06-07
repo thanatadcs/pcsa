@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,10 @@ void respond_with_file(int connFd, char *path) {
     int fd = open(rel_path, O_RDONLY);
     if (fd < 0) {
         perror(0);
+		if (errno == ENOENT) {
+			char *error_msg = "HTTP/1.1 404 Not Found\r\n\r\n";
+			write_all(connFd, error_msg, strlen(error_msg));
+		}
         return;
     }
 
