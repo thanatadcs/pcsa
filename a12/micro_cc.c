@@ -141,11 +141,13 @@ int main(int argc, char* argv[]) {
 		}
 
         // print the address of the incoming client
+		/*
         char hostBuf[BUFSIZE], svcBuf[BUFSIZE];
         if (getnameinfo((SA *) &clientAddr, clientLen, hostBuf, BUFSIZE, svcBuf, BUFSIZE, 0) == 0) 
             printf("Connection from %s:%s\n", hostBuf, svcBuf); 
         else 
             printf("Connection from UNKNOWN.");
+		*/
 
         struct survival_bag *context =
             (struct survival_bag *) malloc(sizeof(struct survival_bag));
@@ -153,8 +155,8 @@ int main(int argc, char* argv[]) {
         memcpy(&context->cliendAddr, &clientAddr, sizeof(struct sockaddr_storage));
 
         pthread_t threadInfo;
-        pthread_create(&threadInfo, NULL, conn_handler, (void *)context);
-        //serve_http(connFd); // service the client on this fd
+        //pthread_create(&threadInfo, NULL, conn_handler, (void *)context);
+        serve_http(connFd); // service the client on this fd
     }
 
     return 0;
