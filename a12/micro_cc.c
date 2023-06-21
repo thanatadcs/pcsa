@@ -155,8 +155,8 @@ int main(int argc, char* argv[]) {
         memcpy(&context->cliendAddr, &clientAddr, sizeof(struct sockaddr_storage));
 
         pthread_t threadInfo;
-        //pthread_create(&threadInfo, NULL, conn_handler, (void *)context);
-        serve_http(connFd); // service the client on this fd
+        pthread_create(&threadInfo, NULL, conn_handler, (void *)context);
+        //serve_http(connFd); // service the client on this fd
     }
 
     return 0;
